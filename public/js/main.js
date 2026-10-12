@@ -1,7 +1,7 @@
 // ================================
   // PHOENIX COINS & PHANTOM MARKET
   // ================================
-
+ 
   initPhantomMarket() {
     this.phantomPowerUps = {
       "emergency-flash": {
