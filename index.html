@@ -1,161 +1,109 @@
-// ================================
-  // PHOENIX COINS & PHANTOM MARKET
-  // ================================
-  
-  initPhantomMarket() {
-    this.phantomPowerUps = {
-      "emergency-flash": {
-        name: "Emergency Flash",
-        cost: 100,
-        unlockTime: 30
-      },
-      "echo-scanner": {
-        name: "Echo Scanner",
-        cost: 150,
-        unlockTime: 60
-      },
-      "neural-shield": {
-        name: "Neural Shield",
-        cost: 200,
-        unlockTime: 90
-      },
-      "time-fracture": {
-        name: "Time Fracture",
-        cost: 250,
-        unlockTime: 120
-      }
-    };
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Nightmares Reimagined: The Book of Secrets</title>
+  <meta name="description" content="A four-level browser horror adventure. Your enemy learns. Your book remembers." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Special+Elite&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='8' fill='%23140806'/><text x='32' y='46' font-size='40' text-anchor='middle' fill='%23ff6a2a'>ᚱ</text></svg>" />
+</head>
+<body>
+  <div id="app">
+    <canvas id="game" aria-label="Game view"></canvas>
 
-    this.phantomShopStart = Date.now();
-    this.phantomPurchasedPowers = [];
+    <!-- GATE: required user gesture for audio -->
+    <section id="gate" class="screen active">
+      <div class="gate-inner">
+        <p class="gate-hint">Headphones recommended</p>
+        <button id="gate-btn" class="gate-btn">Click or press any key to begin</button>
+        <p class="gate-small">Sound and voices start after you interact. Every level is playable without sound.</p>
+      </div>
+    </section>
 
-    const shop = document.getElementById("power-shop");
-    const openButton = document.getElementById("open-power-shop");
-    const closeButtons = document.querySelectorAll(
-      "[data-close-power-shop]"
-    );
+    <!-- CINEMATIC INTRO / MAIN MENU -->
+    <section id="intro" class="screen">
+      <div class="intro-text" id="intro-text"></div>
+      <div class="intro-book" id="intro-book">
+        <img class="cover-art" data-art="book" alt="An ancient leather book with glowing runes" />
+        <div class="rune-glow"></div>
+      </div>
+      <div class="title-block" id="title-block">
+        <h1><span>Nightmares Reimagined:</span> The Book of Secrets</h1>
+        <p class="tagline">“Your enemy learns. Your book remembers.”</p>
+        <p class="subline">Every page hides a nightmare.<br />Every choice changes your fate.</p>
+        <div class="menu-buttons">
+          <button class="btn primary" data-action="open-book">Open the Book</button>
+          <button class="btn" data-action="skip-intro">Skip Intro</button>
+          <button class="btn" data-action="settings">Sound Settings</button>
+        </div>
+        <div class="menu-links">
+          <button class="link" data-action="stats">Statistics</button>
+          <button class="link" data-action="controls">Controls</button>
+          <button class="link" data-action="replay-intro">Replay Intro</button>
+        </div>
+      </div>
+      <button class="btn ghost skip-corner" id="skip-corner" data-action="skip-intro">Skip Intro ⏭</button>
+    </section>
 
-    openButton?.addEventListener("click", () => {
-      this.updatePhantomShop();
-      shop?.classList.add("open");
-      shop?.setAttribute("aria-hidden", "false");
-    });
+    <!-- BOOK LEVEL SELECT -->
+    <section id="book" class="screen">
+      <header class="book-header">
+        <button class="btn ghost" data-action="to-title">← Close the Book</button>
+        <h2>The Book of Secrets</h2>
+        <div class="book-header-right">
+          <button class="btn ghost" data-action="stats">Statistics</button>
+          <button class="btn ghost" data-action="settings">Sound</button>
+        </div>
+      </header>
+      <div class="pages" id="pages"></div>
+      <p class="book-foot" id="book-foot">Four pages. Four nightmares. Every page is open to you.</p>
+    </section>
 
-    closeButtons.forEach(button => {
-      button.addEventListener("click", () => {
-        shop?.classList.remove("open");
-        shop?.setAttribute("aria-hidden", "true");
-      });
-    });
+    <!-- HUD -->
+    <section id="hud" class="hud">
+      <div class="hud-top">
+        <div class="hud-panel objectives">
+          <h3 id="hud-level">—</h3>
+          <ul id="hud-objectives"></ul>
+        </div>
+        <div class="hud-center">
+          <div id="hud-timer" class="hud-timer"></div>
+          <div id="hud-alert" class="hud-alert"></div>
+        </div>
+        <div class="hud-panel status">
+          <div id="hud-status"></div>
+          <button class="btn tiny" data-action="pause" title="Pause (Esc)">❚❚ Pause</button>
+          <button class="btn tiny" data-action="mute" id="mute-btn" title="Mute (M)">🔊</button>
+        </div>
+      </div>
+      <div class="hud-bottom">
+        <div class="hud-panel inventory">
+          <h4>Inventory</h4>
+          <div id="hud-inventory" class="inv-items"></div>
+        </div>
+        <div id="hud-prompt" class="prompt"></div>
+        <div class="hud-panel keys">
+          <span><b>WASD</b> move</span><span><b>Shift</b> run</span><span><b>E</b> interact</span>
+          <span><b>F</b> light</span><span id="key-q"><b>Q</b> throw</span><span><b>Esc</b> pause</span>
+        </div>
+      </div>
+      <div id="learned" class="learned"></div>
+    </section>
 
-    document.querySelectorAll("[data-power]").forEach(button => {
-      button.addEventListener("click", () => {
-        this.purchasePhantomPower(button.dataset.power);
-      });
-    });
+    <!-- SUBTITLES (always on top) -->
+    <div id="subtitles" class="subtitles" aria-live="polite"></div>
 
-    this.updatePhantomShop();
-  }
+    <!-- CINEMATIC OVERLAY for in-level scenes -->
+    <div id="cine" class="cine"><div class="cine-text" id="cine-text"></div><button class="btn ghost cine-skip" id="cine-skip">Skip ⏭</button></div>
 
-  updatePhantomShop() {
-    const balance = document.getElementById("shop-coins");
-    const wallet = document.getElementById("phoenix-coins");
+    <!-- MODALS -->
+    <div id="modal-root"></div>
+  </div>
 
-    // Read the balance from the existing storage system.
-    const coins = Number(
-      wallet?.textContent?.replace(/[^\d]/g, "") || 0
-    );
-
-    if (balance) balance.textContent = coins;
-
-    const elapsed = (Date.now() - this.phantomShopStart) / 1000;
-
-    document.querySelectorAll("[data-power]").forEach(button => {
-      const power = this.phantomPowerUps[button.dataset.power];
-
-      if (!power) return;
-
-      const unlocked = elapsed >= power.unlockTime;
-      const purchased = this.phantomPurchasedPowers.includes(
-        button.dataset.power
-      );
-
-      button.disabled = !unlocked || purchased;
-
-      if (purchased) {
-        button.textContent = `${power.name} — Purchased`;
-      } else if (!unlocked) {
-        button.textContent =
-          `${power.name} — Unlocks in ${Math.ceil(
-            power.unlockTime - elapsed
-          )}s`;
-      } else {
-        button.textContent =
-          `${power.name} — ${power.cost} Coins`;
-      }
-    });
-  }
-
-  purchasePhantomPower(powerId) {
-    const power = this.phantomPowerUps[powerId];
-    const message = document.getElementById("power-shop-message");
-
-    if (!power) return;
-
-    const elapsed = (Date.now() - this.phantomShopStart) / 1000;
-
-    if (elapsed < power.unlockTime) {
-      if (message) {
-        message.textContent = "This power-up is still locked.";
-      }
-      return;
-    }
-
-    if (this.phantomPurchasedPowers.includes(powerId)) {
-      if (message) {
-        message.textContent = "You already purchased this power-up.";
-      }
-      return;
-    }
-
-    const wallet = document.getElementById("phoenix-coins");
-    const currentCoins = Number(
-      wallet?.textContent?.replace(/[^\d]/g, "") || 0
-    );
-
-    if (currentCoins < power.cost) {
-      if (message) {
-        message.textContent = "Not enough Phoenix Coins!";
-      }
-      return;
-    }
-
-    // Deduct coins through the existing storage system.
-    const success = Store.spendCoins(power.cost);
-
-    if (success === false) {
-      if (message) {
-        message.textContent = "Purchase failed. Please try again.";
-      }
-      return;
-    }
-
-    this.phantomPurchasedPowers.push(powerId);
-
-    // Notify the game engine that a power-up was purchased.
-    window.dispatchEvent(
-      new CustomEvent("phoenix:powerup-purchased", {
-        detail: {
-          id: powerId,
-          name: power.name,
-          cost: power.cost
-        }
-      })
-    );
-
-    if (message) {
-      message.textContent = `${power.name} purchased successfully!`;
-    }
-
-    this.updatePhantomShop();
-  }
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
