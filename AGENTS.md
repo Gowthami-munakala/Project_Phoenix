@@ -1,6 +1,5 @@
 # AGENTS.md
 Static game in `public/` (publish dir, no build). See **PLAN.md** for remaining milestones.
-
 - `js/engine.js` — `BaseLevel` (lifecycle, scripted `run`/`w`/`say`, objectives, inventory, lighting, render) and `Stalker` (enemy state machine: patrol/investigate/search/chase with hooks `onHear`, `sightMul`, `doSearch`, `custom`, `draw`). `Grid` carves maps; `tc()` = tile center.
 - `js/levels/*.js` — one class per level extending `BaseLevel`; must set `id`, `map`, implement `drawTile`, call `this.complete()` / `this.gameOver()`. Register in `levels/index.js` (fields: id, index, num, title, art, glow, description, objective, atmosphere, Level).
 - `js/storage.js` — `Memory` records behaviour; enemy brains must query it so decisions actually change.
