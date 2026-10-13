@@ -2,6 +2,14 @@
   publish = "public"
   command = ""
 
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+[dev]
+  publish = "public"
+  framework = "#static"
+
 [[headers]]
   for = "/js/*"
   [headers.values]
