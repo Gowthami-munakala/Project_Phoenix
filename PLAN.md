@@ -10,3 +10,9 @@
 8. ⬜ Level 4 — The Haunted Kingdom (`levels/kingdom.js`): village, artifacts, symbol doors, guardians, hazards, 4-phase king boss (finale already in `main.js`)
 9. ⬜ Register levels 2–4 in `levels/index.js` (art images already in `public/img/`)
 10. ⬜ Full play-test of all four levels
+
+## Source-preserving Phoenix upgrade
+
+The supplied source was backed up before editing. Contextual hints, a Phoenix Coin market, real toggleable power-ups, once-only hotel victory rewards, checkpoint restoration, pause-aware audio/dialogue, and touch controls were added to the existing Canvas game. Netlify Database and a Function endpoint were added for persistent revision-checked saves. Original images, map, storyline, puzzle, and adaptive enemy were retained.
+
+Playable chapters 2–4 were not supplied. Their roadmap above remains intact; no replacement storyline was invented. Runtime/deployment-preview checks in `QA.md` remain outstanding because local validation commands were prohibited.
